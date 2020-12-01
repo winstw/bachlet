@@ -1,0 +1,13 @@
+@()(implicit request: RequestHeader)
+
+@main("Welcome in Bachlet") {
+  <h1>Welcome to Bachlet!</h1>
+
+  <form method="post" action="@routes.AuthController.validateLogin()">
+        @helper.CSRF.formField
+        Username: <input type="text" name="username">
+        password: <input type="password" name="password">
+        <button type="submit">Send</button>
+    </form>
+  </form>
+}
