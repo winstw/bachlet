@@ -8,40 +8,53 @@ const naskButton = document.getElementById('nask');
 const socketRoute = document.getElementById('ws-route').value;
 const socket = new WebSocket(socketRoute);
 
+
+socket.addEventListener('open', function (event) {
+    socket.send(JSON.stringify({action: "connect", itemType: "user"}))
+    });
+
 input.onkeydown= (event) => {
     if (event.key === 'Enter'){
-        socket.send(input.value);
+        socket.send(JSON.stringify({message: input.value}));
         input.value = '';
     }
 }
 
 
-addTextButton.onclick = () => socket.send('tell(textItem(t1))')
-
+addTextButton.onclick = () => socket.send(JSON.stringify({action: 'add', itemType: 'text'}))
 //socket.onopen = ()=>  socket.send("New user connected");
 socket.onmessage = (event) => {
     outputArea.value += '\n' + event.data;
     this.data = event.data;
 }
-//socket.onmessage = event => this.state.items = event.data
 
 class BachItem extends React.Component {
     constructor(props){
         super(props)
     }
-    onDoubleClick = () => props.toggleEditable(this.props.id)
+//     onDoubleClick = () => props.toggleEditable(this.props.id)
     onNewPosition = position => this.props.onNewItemPosition(this.props.id, position)
-    render() {return React.createElement(DraggableComponent, {x: 100, y: 100, onNewPosition: this.onNewPosition}, React.createElement('p', {style: {pointerEvents: "none"}, draggable: true, onChange: (event) => console.log('CHANGED', event)}, `${this.props.value}`))
+    render() {return React.createElement(DraggableComponent, {x: this.props.x, y: this.props.y, onNewPosition: this.onNewPosition}, 
+            React.createElement(
+                'p', 
+                {
+                    style: {pointerEvents: "none"}, // pour eviter de perdre le "drag"
+                    draggable: true, 
+                    onChange: (event) => console.log('CHANGED', event)
+                }, 
+                `${this.props.value}`))
 }
 }
 
 class BachWidget extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {items: [{id: 1, value: "a"}, {id: 2, value: "b"}]}
+        this.state = {items: []}
 
         props.socket.onmessage = event => {
-            this.setState({items:  event.data.split(" ").map((value, id) => ({id, value}))})
+            console.log('MESSAGE FROM WS', event.data);
+            const {items, users} = JSON.parse(event.data);
+            this.setState({items})
             console.log(event.data, this.state.items)
         }
 
@@ -56,9 +69,9 @@ class BachWidget extends React.Component {
     }
 
     render() {
-      return this.state.items.map(({id, value}) => 
+      return this.state.items.map(({id, value, x, y}) => 
 //        React.createElement(Draggable, null, 
-            React.createElement(BachItem, {id, value, onNewItemPosition: this.onNewItemPosition.bind(this) }, null))
+            React.createElement(BachItem, {key: id, id, value, x, y, onNewItemPosition: this.onNewItemPosition.bind(this) }, null))
     }
   }
   
