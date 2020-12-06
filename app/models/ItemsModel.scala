@@ -39,9 +39,9 @@ object ItemsModel {
 
     
 
-    def addTextItem(): Item ={
+    def addTextItem(x:String): Item ={
             val newId = ItemsModel.getItems().length
-            val item = Item(newId, s"texte($newId)", newId*300, 100)
+            val item = Item(newId, x, newId*300, 100)
 
             items = item :: items;
             item

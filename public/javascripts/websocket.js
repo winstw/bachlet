@@ -10,7 +10,7 @@ const socket = new WebSocket(socketRoute);
 
 
 socket.addEventListener('open', function (event) {
-    socket.send(JSON.stringify({action: "connect", itemType: "user"}))
+    socket.send(JSON.stringify({action: "connect", itemType: "user", text: ""}))
     });
 
 input.onkeydown= (event) => {
@@ -21,7 +21,7 @@ input.onkeydown= (event) => {
 }
 
 
-addTextButton.onclick = () => socket.send(JSON.stringify({action: 'add', itemType: 'text'}))
+addTextButton.onclick = () => socket.send(JSON.stringify({action: 'add', itemType: 'text', text: input.value}))
 //socket.onopen = ()=>  socket.send("New user connected");
 socket.onmessage = (event) => {
     outputArea.value += '\n' + event.data;

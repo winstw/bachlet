@@ -20,6 +20,7 @@ class AuthController @Inject()(val controllerComponents: ControllerComponents) e
    */
   def login() = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.login())
+    //Ok(views.html.chatPage())
   }
 
   def validateLogin() = Action { implicit request => 
@@ -30,10 +31,10 @@ class AuthController @Inject()(val controllerComponents: ControllerComponents) e
         if (TaskListInMemoryModel.validateUser(username, password)){
                 Redirect(routes.WebSocketController.index()).withSession("username" -> username)
             } else {
-                Redirect(routes.AuthController.login()).flashing("error" -> "Invalid username/password")
+                //Redirect(routes.AuthController.login()).flashing("error" -> "Invalid username/password")
+                Redirect(routes.WebSocketController.index())
                 }
         }
-        
         .getOrElse(Redirect(routes.AuthController.login()))
 
     }

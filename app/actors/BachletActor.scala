@@ -30,20 +30,22 @@ class BachletActor(out: ActorRef) extends Actor {
     case message: JsValue => 
       // parsing voir https://stackoverflow.com/a/22046047
 
+      println(message)
+
       implicit val actionReader = (
         (__ \ "action").read[String] and
-        (__ \ "itemType").read[String]
-//        (__ \ "items").read[List[Map[String, String]]]
+        (__ \ "itemType").read[String] and
+        (__ \ "text").read[String]
 )(Action)
         val action =  message.as[Action]
 
         println(s"FROM JSON, message: $action")
 
         action match {
-            case Action("add", "text") => 
-            val item: Item = ItemsModel.addTextItem()
+            case Action("add", "text", x) => 
+            val item: Item = ItemsModel.addTextItem(x)
             ag run s"tell(textItem(item${item.id}))"
-            case Action("connect", _) => 
+            case Action("connect", _, _) => 
             ag run s"tell(user)"
         }
        
@@ -55,5 +57,5 @@ object BachletActor {
     def props(out: ActorRef) = Props(new BachletActor(out))
 
     case class SendMessage(msg: String)
-    case class Action(actionType: String, itemType: String)
+    case class Action(actionType: String, itemType: String, text: String)
 }
