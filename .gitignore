@@ -4,3 +4,11 @@ project/project/project/target/
 project/project/target/
 project/target/
 target/
+.bloop/
+.g8/
+.metals/
+.vscode/
+dist/
+node_modules/
+.cache
+
