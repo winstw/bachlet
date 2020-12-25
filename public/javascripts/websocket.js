@@ -8,61 +8,11 @@ const deleteItem = document.getElementById('delete-item');
 const getButton = document.getElementById('get');
 const askButton = document.getElementById('ask');
 const naskButton = document.getElementById('nask');
-
 const socketRoute = document.getElementById('ws-route').value;
-const socket = new WebSocket(socketRoute);
+
 
 var deletedata 
 
-input.onkeydown= (event) => {
-    if (event.key === 'Enter'){
-        socket.send(input.value);
-        input.value = '';
-    }
-}
-
-addTextButton.onclick = () => {
-    socket.send(`tell-textItem-${user}-${input.value}`)
-    input.value = '';
-}
-
-addImageButton.onclick = () => {
-    socket.send(`tell-imageItem-${user}-${input.value}`)
-    input.value = '';
-}
-
-addVideoButton.onclick = () => {
-    socket.send(`tell-videoItem-${user}-${input.value}`)
-    input.value = '';
-}
-
-deleteItem.onclick = () => {
-    var code = input.value.split(" ")
-    if(code[0] == user || user.includes("prof")){
-        deletedata = deletedata.filter(function () {return true});
-        for(var i = 0;i<deletedata.length;i++){
-            var temp = deletedata[i].value.split("(")[1]
-            var typeitem
-            if(deletedata[i].value.split("(")[0].substring(0,1) == "{"){
-
-                typeitem = deletedata[i].value.split("(")[0].substring(1)
-            }else{
-                typeitem = deletedata[i].value.split("(")[0]
-            }
-            if(temp.split("....")[0] == code[1] && temp.split("....")[2].slice(0,-1) == code[0]){
-                socket.send(`get-${typeitem}-${code[1]} ${code[0]}-${temp.split("....")[1]}`)
-            }
-        }
-    }
-    input.value = '';
-}
-//socket.onopen = ()=>  socket.send("New user connected");
-socket.onmessage = (event) => {
-    console.log("Event data : ", event.data)
-    outputArea.value += '\n' + event.data;
-    this.data = event.data;
-}
-//socket.onmessage = event => this.state.items = event.data
 
 class BachItem extends React.Component {
     constructor(props){
@@ -76,8 +26,10 @@ class BachItem extends React.Component {
         var realValue = ""
         
         realValue = splitedItem[1]
-        
-        if(splitedItemtemp[0].includes("textItem")){
+        const itemType = splitedItemtemp[0];
+
+        if(itemType.includes("textItem")){
+
             return React.createElement(DraggableComponent, {x: 100*((this.props.id+1)*2), y: 100, onNewPosition: this.onNewPosition}, 
             [React.createElement(
                 'p', 
@@ -103,7 +55,7 @@ class BachItem extends React.Component {
                 }
                 , `${realValue}`)]
                 )
-        }else if(splitedItemtemp[0].includes("imageItem")){
+        }else if(itemType.includes("imageItem")){
             return React.createElement(DraggableComponent, {x: 100*((this.props.id+1)*2), y: 100, onNewPosition: this.onNewPosition}, 
             [
                 React.createElement(
@@ -153,13 +105,73 @@ class BachItem extends React.Component {
 }
 
 class BachWidget extends React.Component {
+
+    initSocket(){
+        const socket = new WebSocket(socketRoute);
+        input.onkeydown= (event) => {
+            if (event.key === 'Enter'){
+                socket.send(input.value);
+                input.value = '';
+            }
+        }
+/*         socket.addEventListener('open', function (event) {
+            socket.send('hello')
+        })
+            
+ */        
+        addTextButton.onclick = () => {
+            socket.send(`tell-textItem-${user}-${input.value}`)
+            input.value = '';
+        }
+        
+        addImageButton.onclick = () => {
+            socket.send(`tell-imageItem-${user}-${input.value}`)
+            input.value = '';
+        }
+        
+        addVideoButton.onclick = () => {
+            socket.send(`tell-videoItem-${user}-${input.value}`)
+            input.value = '';
+        }
+        
+        deleteItem.onclick = () => {
+            var code = input.value.split(" ")
+            if(code[0] == user || user.includes("prof")){
+                deletedata = deletedata.filter(function () {return true});
+                for(var i = 0;i<deletedata.length;i++){
+                    var temp = deletedata[i].value.split("(")[1]
+                    var typeitem
+                    if(deletedata[i].value.split("(")[0].substring(0,1) == "{"){
+        
+                        typeitem = deletedata[i].value.split("(")[0].substring(1)
+                    }else{
+                        typeitem = deletedata[i].value.split("(")[0]
+                    }
+                    if(temp.split("....")[0] == code[1] && temp.split("....")[2].slice(0,-1) == code[0]){
+                        socket.send(`get-${typeitem}-${code[1]} ${code[0]}-${temp.split("....")[1]}`)
+                    }
+                }
+            }
+            input.value = '';
+        }
+        
+        socket.onmessage = event => {
+            this.setState({items:  event.data.split(" ").map((value, id) => ({id, value}))})
+        }
+
+        socket.onclose = (e)  => {
+            console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+            setTimeout(() =>  {
+              this.initSocket();
+            }, 200);
+        };
+    }
+
     constructor(props) {
         super(props);
         this.state = {items: []}
-
-        props.socket.onmessage = event => {
-            this.setState({items:  event.data.split(" ").map((value, id) => ({id, value}))})
-        }
+        this.initSocket();
+      
 
     }
     
@@ -190,14 +202,15 @@ class BachWidget extends React.Component {
         
         this.state.items = this.state.items.filter(function () {return true});
         console.log("Les items 2: ", this.state.items)
-      return this.state.items.map(({id, value}) => 
-//        React.createElement(Draggable, null, 
-            React.createElement(BachItem, {id, value, onNewItemPosition: this.onNewItemPosition.bind(this) }, null))
+
+        return this.state.items.map(({id, value}) => 
+          React.createElement(BachItem, {id, value, onNewItemPosition: this.onNewItemPosition.bind(this) }, null));
+    
     }
-  }
+}
   
 ReactDOM.render(
-    React.createElement(BachWidget, {socket}, null),
+    React.createElement(BachWidget, {}, null),
     document.getElementById('root')
     );
 
