@@ -5,51 +5,40 @@ import akka.actor.Props
 import akka.actor.ActorRef
 import actors.BachletActor.SendMessage
 import bach.{bb, ag}
-import play.api.libs.json._
-
-import models.ItemsModel
-import models.Item
-import play.api.libs.functional.syntax._
+import scala.concurrent.{ Future, Await }
+import scala.concurrent.duration._
 
 class BachletActor(out: ActorRef) extends Actor {
-    import BachletActor._
-//    implicit val actionFormat = Json.format[Action]
-    def sendItemsTo(actor: ActorRef): Unit = {
-        implicit val itemFormat = Json.format[Item];
-        actor ! Json.obj("items"->ItemsModel.getItems())
-    }
-
-    bb.subject.subscribe(newStore => {
-        println("in PUBLISH") 
-        sendItemsTo(out)
+        bb.subject.subscribe(newStore => {
+        println("in PUBLISH : " + newStore)
+        out ! newStore
     })
+    var index = 0
+    def receive = {
+    case s: String => 
+        println(s)
+        val splitedString = s.split("-", 4)
 
-
-     def receive = {
-
-    case message: JsValue => 
-      // parsing voir https://stackoverflow.com/a/22046047
-
-      println(message)
-
-      implicit val actionReader = (
-        (__ \ "action").read[String] and
-        (__ \ "itemType").read[String] and
-        (__ \ "text").read[String]
-)(Action)
-        val action =  message.as[Action]
-
-        println(s"FROM JSON, message: $action")
-
-        action match {
-            case Action("add", "text", x) => 
-            val item: Item = ItemsModel.addTextItem(x)
-            ag run s"tell(textItem(item${item.id}))"
-            case Action("connect", _, _) => 
-            ag run s"tell(user)"
+        splitedString(0) match {
+            case "tell" => 
+                splitedString(1) match {
+                case "textItem" => 
+                    ag run "tell(textItem(" + index + "...." + splitedString(3) + "...." + splitedString(2) + "))"
+                    index+=1
+                case "imageItem" => 
+                    ag run "tell(imageItem(" + index + "...." + splitedString(3) + "...." + splitedString(2) + "))"
+                    index+=1
+                case "videoItem" => 
+                    ag run "tell(videoItem(" + index + "...." + splitedString(3) + "...." + splitedString(2) + "))"
+                    index+=1
+            }
+            case "get" => 
+                println("Le truc degeux envoyé : " + "get("+splitedString(1)+"("+splitedString(2).split(" ")(0)+"...."+splitedString(3)+"...."+splitedString(2).split(" ")(1)+"))")
+                ag run "get("+splitedString(1)+"("+splitedString(2).split(" ")(0)+"...."+splitedString(3)+"...."+splitedString(2).split(" ")(1)+"))"
         }
-       
-    case m => println("Unhandled msg in ChatActor")
+
+        
+      case m => println("Unhandled msg in ChatActor")
      }
 }
 
@@ -57,5 +46,4 @@ object BachletActor {
     def props(out: ActorRef) = Props(new BachletActor(out))
 
     case class SendMessage(msg: String)
-    case class Action(actionType: String, itemType: String, text: String)
 }

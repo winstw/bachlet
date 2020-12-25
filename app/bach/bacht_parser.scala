@@ -13,8 +13,8 @@ import scala.util.parsing.combinator._
 import scala.util.matching.Regex
 
 class BachTParsers extends RegexParsers {
-
-  def token 	: Parser[String] = ("[a-z][0-9a-zA-Z_]*").r ^^ {_.toString}
+//[a-z]
+  def token 	: Parser[String] = ("[0-9a-zA-Z_ /&%=.?:-]*").r ^^ {_.toString}
 
   val opChoice  : Parser[String] = "+" 
   val opPara    : Parser[String] = "||"
@@ -56,7 +56,10 @@ class BachletParsers extends BachTParsers{
       def imageItem: Parser[String] = "imageItem("~super.token~")"  ^^ {
             case "imageItem("~id~")" => s"imageItem($id)"
       }
-      override def token = imageItem | textItem | super.token
+      def videoItem: Parser[String] = "videoItem("~super.token~")"  ^^ {
+            case "videoItem("~id~")" => s"videoItem($id)"
+      }
+      override def token = videoItem | imageItem | textItem | super.token
 }
 
 object BachTSimulParser extends BachletParsers {

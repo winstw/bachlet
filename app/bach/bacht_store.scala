@@ -36,6 +36,9 @@ class BachTStore {
       if (theStore.contains(token)) 
              if (theStore(token) >= 1) 
                { theStore(token) = theStore(token) - 1 
+               if(theStore(token) == 0){
+                    theStore.remove(token)
+                 }
                  true 
                }
              else { false }

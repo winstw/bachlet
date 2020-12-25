@@ -1,10 +1,18 @@
-@()(implicit request: RequestHeader, flash: Flash)
-
+@(username: String)(implicit request: RequestHeader, flash: Flash)
 @main("Bachlet"){
     <input type="hidden" id="ws-route" value="@routes.WebSocketController.socket.webSocketURL()">
+    <p id="user">Bonjour @username</p>
     <input type="text" id="chat-input" size="40">
     <button id="add-text">Add Text Element</button>
-    <br>
+    <button id="add-image">Add Image Element</button>
+    <button id="add-video">Add Video Element</button>
+    <button id="delete-item">Delete</button>
+    <!--
+    <button id="get">Get</button>
+    <button id="ask">Ask</button>
+    <button id="nask">Nask</button>
+    -->
+
 <div id="root"></div>
 
 

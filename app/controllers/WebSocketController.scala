@@ -10,19 +10,20 @@ import akka.actor.ActorSystem
 import actors.BachletActor
 import akka.actor.Props
 import akka.actor.ActorRef
-import models.ItemsModel
-import play.api.mvc.WebSocket.MessageFlowTransformer
 
 @Singleton
 class WebSocketController @Inject()(cc: ControllerComponents)(implicit system: ActorSystem, mat: Materializer) extends AbstractController(cc){
 
     def index = Action { implicit request => 
-        Ok(views.html.chatPage())
+        val usernameOption = request.session.get("username")
+        usernameOption.map{ username =>
+            Ok(views.html.chatPage(username)) // views.html.chatPage()
+        }.getOrElse(Redirect(routes.AuthController.login()))
+        
 
     }
-    implicit val transformer = MessageFlowTransformer.jsonMessageFlowTransformer[JsValue, JsValue]
-    
-    def socket = WebSocket.accept[JsValue, JsValue] { request => 
+
+    def socket = WebSocket.accept[String, String] { request => 
         println("Getting socket")
         ActorFlow.actorRef  { out => 
         BachletActor.props(out)}
