@@ -1,12 +1,12 @@
 
 const { useRef, useState, useEffect, createElement } = React
 const quickAndDirtyStyle = {
-  width: "200px",
-  height: "200px",
+  padding: "40px",
   background: "#FF9900",
   color: "#FFFFFF",
   display: "flex",
   justifyContent: "center",
+  flexDirection: "column",
   alignItems: "center",
   position: "absolute"
 }
