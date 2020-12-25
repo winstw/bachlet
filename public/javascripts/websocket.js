@@ -1,5 +1,5 @@
 const input = document.getElementById('chat-input');
-const user = document.getElementById('user').innerHTML.split(" ")[1];
+const currentUser = document.getElementById('user').innerHTML.split(" ")[1];
 const outputArea = document.getElementById('chat-area');
 const addTextButton = document.getElementById('add-text');
 const addImageButton = document.getElementById('add-image');
@@ -13,6 +13,15 @@ const socketRoute = document.getElementById('ws-route').value;
 
 var deletedata 
 
+/* class BachImageItem extends BachItem {
+    constructor(props){
+        super(props)
+    }
+
+
+}
+ */
+
 
 class BachItem extends React.Component {
     constructor(props){
@@ -21,17 +30,23 @@ class BachItem extends React.Component {
     onDoubleClick = () => props.toggleEditable(this.props.id)
     onNewPosition = position => this.props.onNewItemPosition(this.props.id, position)
     render() {
-        var splitedItemtemp = this.props.value.split("(",3)
+
+        const {type, value, user} = this.props.value;
+/*         var splitedItemtemp = this.props.value.split("(",3)
         var splitedItem = splitedItemtemp[1].split("....")
         var realValue = ""
-        
-        realValue = splitedItem[1]
-        const itemType = splitedItemtemp[0];
-
-        if(itemType.includes("textItem")){
+         
+        realValue = splitedItem[1] ? splitedItem[1] : splitedItem[0];
+        console.log(realValue);
+         const itemType = splitedItemtemp[0];*/
+        if (type == "user"){
+            return React.createElement('i', {}, value);
+        }
+        else if(type =="textItem"){
 
             return React.createElement(DraggableComponent, {x: 100*((this.props.id+1)*2), y: 100, onNewPosition: this.onNewPosition}, 
-            [React.createElement(
+            [React.createElement('button', {onClick: this.props.delete}, 'X'),
+             React.createElement(
                 'p', 
                 {
                     style: {
@@ -41,7 +56,8 @@ class BachItem extends React.Component {
                     draggable: true, 
                     onChange: (event) => console.log('CHANGED', event)
                 }
-                , `${splitedItem[2].slice(0,-1)} ${splitedItem[0]} : `),
+//                , `${splitedItem[2].slice(0,-1)} ${splitedItem[0]} : `),
+                , `${user} : `),
                 React.createElement(
                 'p', 
                 {
@@ -53,11 +69,11 @@ class BachItem extends React.Component {
                     draggable: true, 
                     onChange: (event) => console.log('CHANGED', event)
                 }
-                , `${realValue}`)]
+                , `${value}`)]
                 )
-        }else if(itemType.includes("imageItem")){
+        }else if(type == "imageItem"){
             return React.createElement(DraggableComponent, {x: 100*((this.props.id+1)*2), y: 100, onNewPosition: this.onNewPosition}, 
-            [
+            [React.createElement('button', {onClick: this.props.delete}, 'X'),
                 React.createElement(
                 'p', 
                 {
@@ -68,18 +84,19 @@ class BachItem extends React.Component {
                     draggable: true, 
                     onChange: (event) => console.log('CHANGED', event)
                 }
-                , `${splitedItem[2].slice(0,-1)} ${splitedItem[0]} : `),
+//                , `${splitedItem[2].slice(0,-1)} ${splitedItem[0]} : `),
+                , `${user} : `),
                 React.createElement(
                 'img', 
                 {
-                    src: `${realValue}`,
+                    src: `${value}`,
                     width: "200px",
                     height: "200px"
                 }
                 , null)])
         }else{
             return React.createElement(DraggableComponent, {x: 100*((this.props.id+1)*2), y: 100, onNewPosition: this.onNewPosition}, 
-            [
+            [React.createElement('button', {onClick: this.props.delete}, 'X'),
                 React.createElement(
                 'p', 
                 {
@@ -90,11 +107,12 @@ class BachItem extends React.Component {
                     draggable: true, 
                     onChange: (event) => console.log('CHANGED', event)
                 }
-                , `${splitedItem[2].slice(0,-1)} ${splitedItem[0]} : `),
+//                , `${splitedItem[2].slice(0,-1)} ${splitedItem[0]} : `),
+                , `${user} : `),
             React.createElement(
                 'iframe', 
                 {
-                    src: `${realValue}`,
+                    src: `${value}`,
                     width: "200px",
                     height: "200px"
                 }
@@ -108,33 +126,33 @@ class BachWidget extends React.Component {
 
     initSocket(){
         const socket = new WebSocket(socketRoute);
+        this.socket = socket;
         input.onkeydown= (event) => {
             if (event.key === 'Enter'){
                 socket.send(input.value);
                 input.value = '';
             }
         }
-/*         socket.addEventListener('open', function (event) {
-            socket.send('hello')
-        })
+        socket.onopen = (event) => {
+            socket.send(`tells-user-${currentUser}-${currentUser}`)
+        }
             
- */        
         addTextButton.onclick = () => {
-            socket.send(`tell-textItem-${user}-${input.value}`)
+            socket.send(`tells-textItem-${currentUser}-${input.value}`)
             input.value = '';
         }
         
         addImageButton.onclick = () => {
-            socket.send(`tell-imageItem-${user}-${input.value}`)
+            socket.send(`tells-imageItem-${currentUser}-${input.value}`)
             input.value = '';
         }
         
         addVideoButton.onclick = () => {
-            socket.send(`tell-videoItem-${user}-${input.value}`)
+            socket.send(`tells-videoItem-${currentUser}-${input.value}`)
             input.value = '';
         }
         
-        deleteItem.onclick = () => {
+/*         deleteItem.onclick = () => {
             var code = input.value.split(" ")
             if(code[0] == user || user.includes("prof")){
                 deletedata = deletedata.filter(function () {return true});
@@ -154,9 +172,10 @@ class BachWidget extends React.Component {
             }
             input.value = '';
         }
-        
+ */        
         socket.onmessage = event => {
-            this.setState({items:  event.data.split(" ").map((value, id) => ({id, value}))})
+            console.log("JSON", JSON.parse(event.data))
+            this.setState({items:  JSON.parse(event.data)})
         }
 
         socket.onclose = (e)  => {
@@ -174,6 +193,10 @@ class BachWidget extends React.Component {
       
 
     }
+    onDeleteItem = ({type, value}) => () => {
+        const command = `gets-${type}-${currentUser}-${value}`
+        this.socket.send(command)
+    }
     
     onNewItemPosition(itemId, position){
         const {x: newX, y: newY} = position
@@ -187,7 +210,7 @@ class BachWidget extends React.Component {
         deletedata = this.state.items
         console.log("Les items : ", this.state.items)
         
-        for(var i = 0;i<this.state.items.length;i++){
+/*          for(var i = 0;i<this.state.items.length;i++){
             console.log("It : ", this.state.items[i].value)
             if(!user.includes("prof")){
                 console.log("Je suis là")
@@ -197,14 +220,13 @@ class BachWidget extends React.Component {
                     delete this.state.items[i]
                 }
             }
-        }
-            
+        } */
+ 
         
-        this.state.items = this.state.items.filter(function () {return true});
         console.log("Les items 2: ", this.state.items)
 
-        return this.state.items.map(({id, value}) => 
-          React.createElement(BachItem, {id, value, onNewItemPosition: this.onNewItemPosition.bind(this) }, null));
+        return this.state.items.map((value, id) => 
+          React.createElement(BachItem, {id, value, delete: this.onDeleteItem(value), onNewItemPosition: this.onNewItemPosition.bind(this) }, null));
     
     }
 }

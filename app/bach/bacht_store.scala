@@ -14,7 +14,6 @@ import rx.lang.scala.subjects.PublishSubject
 
 class BachTStore {
    var theStore = Map[String,Int]()
-
    def tell(token:String):Boolean = {
       if (theStore.contains(token)) 
         { theStore(token) = theStore(token) + 1 }
@@ -53,13 +52,15 @@ class BachTStore {
       else true 
    }
 
+
    override def toString = 
       (for ((t,d) <- theStore) yield t + "(" + theStore(t) + ")" ).mkString("{", " ", "}")
+   
 
 
 
    def print_store {
-      println(this.toString())
+      //println(this.toString())
 
        print("{ ")
       for ((t,d) <- theStore) 
@@ -71,23 +72,62 @@ class BachTStore {
       theStore = Map[String,Int]()
    }
 
+   var thePerms = Map[String, String]()
+   def tells(token: String, user: String): Boolean = {
+      println("in tells " + user);
+      thePerms = thePerms ++ Map(token -> user)
+      this.tell(token);
+   }
+   def gets(token: String, user: String): Boolean = {
+      println("in gets " + user);
+      thePerms.get(token) match {
+         case Some(tokenOwner) => 
+         if (user == tokenOwner){
+            thePerms.remove(token)
+            return this.get(token)
+         } else return false
+         case None => 
+            return false
+      }
+
+   }
+
+
 }
 
 object bb extends BachTStore {
+
    val subject = PublishSubject[String]()
+
+
+   def toJson = 
+         (for ((token,d) <- theStore) yield 
+         
+
+         thePerms.get(token) match {
+            case Some(user: String) => 
+            val Array(typ: String, value: String) = token.dropRight(1).split('(');
+            s"""{"type": "$typ", "value": "$value", "user": "$user"}"""
+            case None => 
+            val Array(typ: String, value: String) = token.dropRight(1).split('(');
+            s"""{"type": "$typ", "value": "$value"}"""
+         }).mkString("[", ",", "]")
+         
+         
 
    override def tell(token: String): Boolean = {
       val result = super.tell(token)
-      subject.onNext(bb.toString())
+      subject.onNext(bb.toJson)
       result
    }
    override def get(token: String): Boolean = {
       val success = super.get(token)
       if (success){
-         subject.onNext(bb.toString())
+         subject.onNext(bb.toJson)
       }
       success
    }
+
    
    def reset { clear_store }
 

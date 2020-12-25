@@ -25,6 +25,12 @@ class BachTSimul(var bb: BachTStore) {
                else { (false,agent) }
             }
 
+         case bacht_ast_primitive_perm(prim,token, user) => 
+            {  if (exec_primitive_perm(prim,token, user)) { (true,bacht_ast_empty_agent()) }
+               else { (false,agent) }
+            }
+
+
          case bacht_ast_agent(";",ag_i,ag_ii) =>
             {  run_one(ag_i) match
                   { case (false,_) => (false,agent)
@@ -174,8 +180,20 @@ class BachTSimul(var bb: BachTStore) {
            case "nask" => bb.nask(token)
          }
    }
+     def exec_primitive_perm(prim:String,token:String,user:String):Boolean = {
+       prim match
+         { case "tells" => bb.tells(token,user)
+           case "ask"  => bb.ask(token)
+           case "gets"  => bb.gets(token, user)
+           case "nask" => bb.nask(token)
+         }
+   }
+
+
+
 
 }
+
 
 object ag extends BachTSimul(bb) {
 

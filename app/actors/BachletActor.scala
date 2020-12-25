@@ -17,25 +17,38 @@ class BachletActor(out: ActorRef) extends Actor {
     def receive = {
     case s: String => 
         println(s)
-        val splitedString = s.split("-", 4)
+        println(s.split('-'))
+        val Array(action: String, predicate: String, user: String, value: String) = s.split('-')
+        println(action, predicate, user, value)
+/*         val action = splitedString(0)
+        val predicate = splitedString(1)
+ */       
 
-        splitedString(0) match {
-            case "tell" => 
-                splitedString(1) match {
-                case "textItem" => 
-                    ag run "tell(textItem(" + index + "...." + splitedString(3) + "...." + splitedString(2) + "))"
-                    index+=1
-                case "imageItem" => 
+ action match {
+            case "gets" => 
+                println(s"gets($predicate($value),$user)")
+               ag run s"gets($predicate($value),$user)"
+            case "tells" => 
+                predicate match {
+                case "user" => ag run s"tell(user($user))";
+                case s: String => 
+                    println(s"tells($predicate($value),$user)")
+                    ag run s"tells($predicate($value),$user)"
+                   index+=1
+/*                 case "imageItem" => 
                     ag run "tell(imageItem(" + index + "...." + splitedString(3) + "...." + splitedString(2) + "))"
                     index+=1
                 case "videoItem" => 
                     ag run "tell(videoItem(" + index + "...." + splitedString(3) + "...." + splitedString(2) + "))"
                     index+=1
-            }
-            case "get" => 
+ */            }
+/*             case "get" => 
                 println("Le truc degeux envoyé : " + "get("+splitedString(1)+"("+splitedString(2).split(" ")(0)+"...."+splitedString(3)+"...."+splitedString(2).split(" ")(1)+"))")
                 ag run "get("+splitedString(1)+"("+splitedString(2).split(" ")(0)+"...."+splitedString(3)+"...."+splitedString(2).split(" ")(1)+"))"
-        }
+ */            case m => println("Unhandled msg in ChatActor : "  +  m);
+            }
+
+ 
 
         
       case m => println("Unhandled msg in ChatActor")
