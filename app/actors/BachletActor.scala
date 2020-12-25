@@ -14,8 +14,20 @@ class BachletActor(out: ActorRef) extends Actor {
         out ! newStore
     })
     var index = 0
+    var username = ""
+        
     def receive = {
-    case s: String => 
+        case userTell: String if userTell.startsWith("tells-user-") => 
+            println("in userTell ")
+            username = userTell.split("-", 4)(2)
+            ag run s"tell(user($username))";
+            context.become(talking)
+        case m => println("Unhandled msg in ChatActor")
+    }
+    
+    
+    def talking: Receive = {
+        case s: String => 
         println(s)
         println(s.split('-'))
         val Array(action: String, predicate: String, user: String, value: String) = s.split('-')
@@ -27,7 +39,7 @@ class BachletActor(out: ActorRef) extends Actor {
  action match {
             case "gets" => 
                 println(s"gets($predicate($value),$user)")
-               ag run s"gets($predicate($value),$user)"
+                ag run s"gets($predicate($value),$user)"
             case "tells" => 
                 predicate match {
                 case "user" => ag run s"tell(user($user))";
@@ -53,6 +65,10 @@ class BachletActor(out: ActorRef) extends Actor {
         
       case m => println("Unhandled msg in ChatActor")
      }
+        override def postStop() = {
+            println(s"remove $username")
+            ag run s"get(user($username))"
+}
 }
 
 object BachletActor {

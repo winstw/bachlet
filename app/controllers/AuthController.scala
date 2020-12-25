@@ -19,7 +19,7 @@ class AuthController @Inject()(val controllerComponents: ControllerComponents) e
    * a path of `/`.
    */
   def login() = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.login())
+    Ok(views.html.login()).withNewSession
   }
 
   def validateLogin() = Action { implicit request => 
