@@ -30,7 +30,7 @@ class BachletActor(out: ActorRef) extends Actor {
         case s: String => 
         println(s)
         println(s.split('-'))
-        val Array(action: String, predicate: String, user: String, value: String) = s.split('-')
+        val Array(action: String, predicate: String, user: String, value: String) = s.split("-", 4)
         println(action, predicate, user, value)
 /*         val action = splitedString(0)
         val predicate = splitedString(1)

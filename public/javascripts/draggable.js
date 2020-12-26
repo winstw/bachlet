@@ -1,7 +1,7 @@
 
 const { useRef, useState, useEffect, createElement } = React
 const quickAndDirtyStyle = {
-  padding: "40px",
+  padding: "20px",
   background: "#FF9900",
   color: "#FFFFFF",
   display: "flex",
@@ -50,7 +50,7 @@ const DraggableComponent = (props) => {
     </div>
   )
  */
-return React.createElement('div', {ref, style: quickAndDirtyStyle, onMouseOut: onMouseUp, onMouseMove, onMouseDown: () => setPressed(true), onMouseUp}, /*React.createElement('p', null, pressed ? "Dragging..." : "Press to drag")*/props.children)
+return React.createElement('div', {ref, class: "card", style: quickAndDirtyStyle, onMouseOut: onMouseUp, onMouseMove, onMouseDown: () => setPressed(true), onMouseUp}, /*React.createElement('p', null, pressed ? "Dragging..." : "Press to drag")*/props.children)
 }
 /* 
 export default DraggableComponent */

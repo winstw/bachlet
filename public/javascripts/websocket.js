@@ -4,10 +4,6 @@ const outputArea = document.getElementById('chat-area');
 const addTextButton = document.getElementById('add-text');
 const addImageButton = document.getElementById('add-image');
 const addVideoButton = document.getElementById('add-video');
-const deleteItem = document.getElementById('delete-item');
-const getButton = document.getElementById('get');
-const askButton = document.getElementById('ask');
-const naskButton = document.getElementById('nask');
 const socketRoute = document.getElementById('ws-route').value;
 
 
@@ -40,20 +36,21 @@ class BachItem extends React.Component {
         console.log(realValue);
          const itemType = splitedItemtemp[0];*/
         if (type == "user"){
-            return React.createElement('i', {}, value);
+            return React.createElement('i', {style: {/* margin: "10px" */}, class: 'btn btn-info m-2'}, `${value}`);
         }
         else if(type =="textItem"){
 
             return React.createElement(DraggableComponent, {x: 100*((this.props.id+1)*2), y: 100, onNewPosition: this.onNewPosition}, 
-            [React.createElement('button', {onClick: this.props.delete}, 'X'),
+            [React.createElement('button', {class: "btn btn-danger btn-sm", onClick: this.props.delete}, 'X'),
              React.createElement(
-                'p', 
+                'div', 
                 {
                     style: {
                         pointerEvents: "none",
                         fontSize: "14px"
                     }, 
-                    draggable: true, 
+                    draggable: true,
+//                    class: "card-header",
                     onChange: (event) => console.log('CHANGED', event)
                 }
 //                , `${splitedItem[2].slice(0,-1)} ${splitedItem[0]} : `),
@@ -63,9 +60,10 @@ class BachItem extends React.Component {
                 {
                     style: {
                         pointerEvents: "none",
-                        fontSize: "28px"
+                        fontSize: "28px",
 
                     },
+                    class: "card-text",
                     draggable: true, 
                     onChange: (event) => console.log('CHANGED', event)
                 }
@@ -89,6 +87,9 @@ class BachItem extends React.Component {
                 React.createElement(
                 'img', 
                 {
+                    style: {
+                        pointerEvents: "none",
+                    },
                     src: `${value}`,
                     width: "200px",
                     height: "200px"
