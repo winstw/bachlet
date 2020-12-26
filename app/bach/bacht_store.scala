@@ -59,12 +59,10 @@ class BachTStore {
 
 
 
-   def print_store {
-      //println(this.toString())
-
-       print("{ ")
+   def print_store: Unit = {
+       print("{ \n")
       for ((t,d) <- theStore) 
-         print ( t + "(" + theStore(t) + ")" )
+         print ( t + "(" + theStore(t) + ")\n" )
       println(" }")
     }
 
@@ -82,7 +80,7 @@ class BachTStore {
       println("in gets " + user);
       thePerms.get(token) match {
          case Some(tokenOwner) => 
-         if (user == tokenOwner){
+         if (user == tokenOwner || (user.startsWith("prof") && !tokenOwner.startsWith("prof"))){
             thePerms.remove(token)
             return this.get(token)
          } else return false
@@ -129,6 +127,6 @@ object bb extends BachTStore {
    }
 
    
-   def reset { clear_store }
+   def reset: Unit = { clear_store }
 
 }

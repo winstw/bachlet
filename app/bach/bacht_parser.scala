@@ -51,20 +51,13 @@ class BachTParsers extends RegexParsers {
 
 class BachletParsers extends BachTParsers{
       def predicate: Parser[String] = super.token~"("~super.token~")"  ^^ {
-            case pred~"("~arg~")" => println("in predicate parser");s"$pred($arg)"
+            case pred~_~arg~_ => println("in predicate parser");s"$pred($arg)"
        }
-/*       def imageItem: Parser[String] = "imageItem("~super.token~")"  ^^ {
-            case "imageItem("~id~")" => s"imageItem($id)"
-      }
-      def videoItem: Parser[String] = "videoItem("~super.token~")"  ^^ {
-            case "videoItem("~id~")" => s"videoItem($id)"
-      }
- */   
       override def token = predicate | super.token
-      override def primitive = super.primitive |
+      override def primitive = super.primitive | 
             "tells("~token~","~token~")" ^^ {
         case _ ~ vtoken ~ "," ~ vuser ~ _  => bacht_ast_primitive_perm("tells",vtoken,vuser) } |
-                    "gets("~token~","~token~")" ^^ {
+            "gets("~token~","~token~")" ^^ {
         case _ ~ vtoken ~ "," ~ vuser ~ _  => bacht_ast_primitive_perm("gets",vtoken,vuser) }
 
 }

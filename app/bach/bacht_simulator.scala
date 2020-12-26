@@ -188,21 +188,24 @@ class BachTSimul(var bb: BachTStore) {
            case "nask" => bb.nask(token)
          }
    }
-
-
-
-
 }
 
 
 object ag extends BachTSimul(bb) {
 
-  def apply(agent: String) {
-     val agent_parsed = BachTSimulParser.parse_agent(agent)
-     ag.bacht_exec_all(agent_parsed) 
+  def apply(agent: String): Boolean = {
+    try {
+        val agent_parsed = BachTSimulParser.parse_agent(agent)
+        ag.bacht_exec_all(agent_parsed) 
+    } catch {
+        case error: Throwable => {
+          println(s"BachTSimul error : $error")
+          false
+        }
+    }
   }
-  def eval(agent:String) { apply(agent) }
-  def run(agent:String) { apply(agent) }
+  def eval(agent:String):Boolean = { apply(agent) }
+  def run(agent:String):Boolean =  { apply(agent) }
 
 }
          

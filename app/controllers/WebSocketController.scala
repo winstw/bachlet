@@ -17,7 +17,7 @@ class WebSocketController @Inject()(cc: ControllerComponents)(implicit system: A
     def index = Action { implicit request => 
         val usernameOption = request.session.get("username")
         usernameOption.map{ username =>
-            Ok(views.html.chatPage(username)) // views.html.chatPage()
+            Ok(views.html.chatPage(username))
         }.getOrElse(Redirect(routes.AuthController.login()))
         
 

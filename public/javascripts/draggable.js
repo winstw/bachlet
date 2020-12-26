@@ -39,18 +39,5 @@ const DraggableComponent = (props) => {
     setPressed(false)
   }
 
-/*   return (
-    <div
-      ref={ ref }
-      style={ quickAndDirtyStyle }
-      onMouseMove={ onMouseMove }
-      onMouseDown={ () => setPressed(true) }
-      onMouseUp={ () => setPressed(false) }>
-      <p>{ pressed ? "Dragging..." : "Press to drag" }</p>
-    </div>
-  )
- */
-return React.createElement('div', {ref, class: "card", style: quickAndDirtyStyle, onMouseOut: onMouseUp, onMouseMove, onMouseDown: () => setPressed(true), onMouseUp}, /*React.createElement('p', null, pressed ? "Dragging..." : "Press to drag")*/props.children)
+  return React.createElement('div', {ref, className: "card", style: quickAndDirtyStyle, onMouseOut: onMouseUp, onMouseMove, onMouseDown: () => setPressed(true), onMouseUp}, /*React.createElement('p', null, pressed ? "Dragging..." : "Press to drag")*/props.children)
 }
-/* 
-export default DraggableComponent */
