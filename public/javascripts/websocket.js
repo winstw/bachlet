@@ -19,9 +19,14 @@ class BachItem extends React.Component {
         const userElement =  <i className="m-2">{user}</i>
         const deleteButtonElement = <button type="button" className="close mr-2" onClick={this.props.delete}>&times;</button>
         let valueElement;
-        if(type =="textItem") valueElement = <p style={{fontSize: "20px", flexGrow:1}} className="bg-light"
+
+        if(type =="textItem") 
+            valueElement = <p style={{fontSize: "20px", flexGrow:1}} className="bg-light"
                                                className="card-text m-3">{value}</p>
-        else if(type == "imageItem") valueElement = <img src={value} className="card-image m-2" width="200px" height="200px"></img>
+       
+        else if(type == "imageItem") 
+            valueElement = <img src={value} className="card-image m-2" width="200px" height="200px"></img>
+        
         else valueElement = <iframe src={value}
                                     width="200px"
                                     height="200px"></iframe>
@@ -30,7 +35,7 @@ class BachItem extends React.Component {
                     <div style={{display: "flex", justifyContent: "space-between"}} className="w-100"> 
                         {userElement} {deleteButtonElement}
                     </div>
-                        {valueElement}
+                    {valueElement}
                 </div> 
 
     }
@@ -57,7 +62,7 @@ class BachWidget extends React.Component {
         this.socket = socket;
         socket.onopen = (event) => {
             this.timeout = 250;
-            socket.send(`tells-user-${currentUser}`)
+            socket.send(`tell-user-${currentUser}`)
         }
             
         addTextButton.onclick = () => {
@@ -104,14 +109,6 @@ class BachWidget extends React.Component {
         this.socket.send(command)
     }
     
-    onNewItemPosition(itemId, position){
-        const {x: newX, y: newY} = position
-        console.log("new position")
-        let item = this.state.items.find(item => item.id == itemId)
-        item = {...item, x: newX, y: newY}
-        console.log(this.state)
-    }
-
     setSortMethod(method){
         localStorage.setItem('sortMethod', method)
         this.setState({...this.state, sortMethod: method})
@@ -128,7 +125,7 @@ class BachWidget extends React.Component {
                 </div>
                 <div  ref={this.itemContainerRef} className="d-flex justify-content-start flex-row align-items-left flex-wrap">
                     {this.state.items.sort(this.getComparisonFunctionFor(this.state.sortMethod)).map((item, id) => 
-                    <BachItem id={id} key={item.value} value={item} delete={this.onDeleteItem(item)} onNewItemPosition={this.onNewItemPosition.bind(this)}>
+                    <BachItem id={id} key={item.value} value={item} delete={this.onDeleteItem(item)}>
                     </BachItem>
                     )}
             </div>
@@ -143,13 +140,7 @@ class BachWidget extends React.Component {
 
     }
 }
-const cardContainerStyle = {
-    display: "flex",
-    justifyContent: "start",
-    flexDirection: "row",
-    alignItems: "left",
-    flexWrap: "wrap",
-  }
+  
 ReactDOM.render(
     React.createElement(BachWidget, {}, null),
     document.getElementById('root')

@@ -171,7 +171,6 @@ class BachTSimul(var bb: BachTStore) {
        c_agent
    }  
 
-
    def exec_primitive(prim:String,token:String):Boolean = {
        prim match
          { case "tell" => bb.tell(token)
@@ -180,19 +179,19 @@ class BachTSimul(var bb: BachTStore) {
            case "nask" => bb.nask(token)
          }
    }
-     def exec_primitive_perm(prim:String,token:String,user:String):Boolean = {
+
+   // Ajouté pour l'evaluation des deux nouvelles primitives tells et gets
+   def exec_primitive_perm(prim:String,token:String,user:String):Boolean = {
        prim match
          { case "tells" => bb.tells(token,user)
-           case "ask"  => bb.ask(token)
            case "gets"  => bb.gets(token, user)
-           case "nask" => bb.nask(token)
          }
    }
 }
 
 
 object ag extends BachTSimul(bb) {
-
+  // Modifié pour éviter l'arrêt du programme en cas d'erreur de parsing
   def apply(agent: String): Boolean = {
     try {
         val agent_parsed = BachTSimulParser.parse_agent(agent)

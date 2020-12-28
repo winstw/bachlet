@@ -7,13 +7,14 @@ package bach
    AUTHOR : J.-M. Jacquet and D. Darquennes
    DATE   : March 2016
 
+   Modifications apportés pour le projet bachlet commentées dans le code
 ----------------------------------------------------------------------------*/
 
 import scala.util.parsing.combinator._
 import scala.util.matching.Regex
 
 class BachTParsers extends RegexParsers {
-//[a-z]
+
   def token 	: Parser[String] = ("[0-9a-zA-Z_ /&%=.?:-]*").r ^^ {_.toString}
 
   val opChoice  : Parser[String] = "+" 
@@ -49,9 +50,12 @@ class BachTParsers extends RegexParsers {
 
 }
 
+
+// Ajout de deux primitives tells et gets au parser original
+// ainsi que d'un type de token "predicat" qui prend un parametre entre parentheses
 class BachletParsers extends BachTParsers{
       def predicate: Parser[String] = super.token~"("~super.token~")"  ^^ {
-            case pred~_~arg~_ => println("in predicate parser");s"$pred($arg)"
+            case pred~_~arg~_ => s"$pred($arg)"
        }
       override def token = predicate | super.token
       override def primitive = super.primitive | 
@@ -61,18 +65,21 @@ class BachletParsers extends BachTParsers{
         case _ ~ vtoken ~ "," ~ vuser ~ _  => bacht_ast_primitive_perm("gets",vtoken,vuser) }
 
 }
+
+// Nouvelle Exception lancée en cas d'erreur de parsing par BachTSimulParser
 class ParsingException(message: String) extends RuntimeException(message)
 
 object BachTSimulParser extends BachletParsers {
-
+  // Modifié le type d'exception générée en cas d'erreur de parsing
   def parse_primitive(prim: String) = parseAll(primitive,prim) match {
         case Success(result, _) => result
-        case failure : NoSuccess => throw new ParsingException(failure.msg) // println("Primitive Parsing error", prim)
+        case failure : NoSuccess => throw new ParsingException(failure.msg)
   }
 
+  // Modifié le type d'exception générée en cas d'erreur de parsing
   def parse_agent(ag: String) = parseAll(agent,ag) match {
         case Success(result, _) => result
-        case failure : NoSuccess => throw new ParsingException(failure.msg)//println("Agent Parsing error", ag)//
+        case failure : NoSuccess => throw new ParsingException(failure.msg)
   }
 
 }

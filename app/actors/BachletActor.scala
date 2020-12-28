@@ -9,15 +9,18 @@ import scala.concurrent.{ Future, Await }
 import scala.concurrent.duration._
 
 class BachletActor(out: ActorRef) extends Actor {
+        // Chaque modification du store sera émise à chaque client
         bb.subject.subscribe(newStore => {
         out ! newStore
     })
-    var index = 0
+
     var username = ""
     val actionRegex = raw"(tells?|gets?|nask|ask)-(user|imageItem|textItem|videoItem)-([0-9a-zA-Z_ /&%=.?:-]+)".r
        
+    // Premier état de l'acteur, en attente du message d'initiation de la communication
+    // Il s'agit d'un tell-user
     def receive = {
-        case userTell: String if userTell.startsWith("tells-user-") => 
+        case userTell: String if userTell.startsWith("tell-user-") => 
             username = userTell.split("-", 4)(2)
             ag run s"tell(user($username))";
             context.become(talking)

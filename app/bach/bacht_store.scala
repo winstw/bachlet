@@ -10,6 +10,7 @@ import rx.lang.scala.subjects.PublishSubject
    AUTHOR : J.-M. Jacquet and D. Darquennes
    DATE   : March 2016
 
+   // Modifications apportés commentées dans le code
 ----------------------------------------------------------------------------*/
 
 class BachTStore {
@@ -69,13 +70,22 @@ class BachTStore {
       theStore = Map[String,Int]()
    }
 
+   // Map permettant de gérer les permissions sur les tokens
    var thePerms = Map[String, String]()
 
+   // Implémentation de la primitive tells dans le store :
+   // Ajoute au comportement tell classique l'ajout de l'utilisateur
+   // dans la Map des permissions à la clé correspondant au token
    def tells(token: String, user: String): Boolean = {
       println("in tells " + user);
       thePerms = thePerms ++ Map(token -> user)
       this.tell(token);
    }
+
+   // Implémentation de la primitive gets dans le store : 
+   // Ne réalise le get "classique" que si l'utilisateur
+   // est propriétaire du token OU si l'utilisateur est un professeur
+   // et le propriétaire du token n'en est pas un
    def gets(token: String, user: String): Boolean = {
       println("in gets " + user + token);
       thePerms.get(token) match {
@@ -91,11 +101,16 @@ class BachTStore {
 
 object bb extends BachTStore {
 
+   // Sujet utilisé pour l'émission du nouvel état du store
+   // en cas de modifications sur celui-ci (tell et get), voir
+   // ci-dessous
    val subject = PublishSubject[String]()
 
-
+   // Fonction qui crée une représentation du store
+   // sous forme lisible par le front-end 
+   // (dictionnaire au format JSON)
    def toJson = {
-      println(theStore.zipWithIndex)
+
       (for ((token,d) <- theStore) yield 
             thePerms.get(token) match {
             case Some(user: String) => 
@@ -107,11 +122,16 @@ object bb extends BachTStore {
          }).mkString("[", ",", "]")
       }
 
+   // Génère l'émission du nouvel état du store sur le sujet
+   // en cas de tell
    override def tell(token: String): Boolean = {
       val result = super.tell(token)
       subject.onNext(bb.toJson)
       result
    }
+
+   // Génère l'émission du nouvel état du store sur le sujet
+   // en cas de get
    override def get(token: String): Boolean = {
       val success = super.get(token)
       if (success){

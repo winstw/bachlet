@@ -14,6 +14,7 @@ import akka.actor.ActorRef
 @Singleton
 class WebSocketController @Inject()(cc: ControllerComponents)(implicit system: ActorSystem, mat: Materializer) extends AbstractController(cc){
 
+    // Route pour l'affichage de la page du padlet
     def index = Action { implicit request => 
         val usernameOption = request.session.get("username")
         usernameOption.map{ username =>
@@ -21,6 +22,9 @@ class WebSocketController @Inject()(cc: ControllerComponents)(implicit system: A
         }.getOrElse(Redirect(routes.AuthController.login()))
     }
 
+    // Route de la connection au Socket proprement dite
+    // Chaque nouvelle connection va générer un acteur (Akka)
+    // chargé de gérer la communication
     def socket = WebSocket.accept[String, String] { request => 
         println("Getting socket")
         ActorFlow.actorRef  { out => 
