@@ -14,7 +14,8 @@ class BachletActor(out: ActorRef) extends Actor {
     })
     var index = 0
     var username = ""
-        
+    val actionRegex = raw"(tells?|gets?|nask|ask)-(user|imageItem|textItem|videoItem)-([0-9a-zA-Z_ /&%=.?:-]+)".r
+       
     def receive = {
         case userTell: String if userTell.startsWith("tells-user-") => 
             username = userTell.split("-", 4)(2)
@@ -24,18 +25,18 @@ class BachletActor(out: ActorRef) extends Actor {
     }
     
     def talking: Receive = {
-        case s: String => 
-            val Array(action: String, predicate: String, user: String, value: String) = s.split("-", 4)
-            action match {
-                case "gets" => 
-                    ag run s"gets($predicate($value),$user)"
-                case "tells" => 
-                    predicate match {
-                        case s: String => ag run s"tells($predicate($value),$user)"
-                    case m => println("Unhandled msg in ChatActor : "  +  m);
+        case s: String => s match {
+                case command if actionRegex.matches(command) => command match {
+                    case actionRegex(action, predicate, value) => 
+                        action match {
+                            case "gets" => 
+                                ag run s"gets($predicate($value),$username)"
+                            case "tells" => ag run s"nask($predicate($value));tells($predicate($value),$username)"
+                        }
                     }
-            }
-        case m => println("Unhandled msg in talking ChatActor")
+                case m => println("Unhandled msg in ChatActor : "  +  m);
+        }
+
      }
      
     override def postStop() = {

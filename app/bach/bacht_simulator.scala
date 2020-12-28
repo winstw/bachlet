@@ -198,8 +198,8 @@ object ag extends BachTSimul(bb) {
         val agent_parsed = BachTSimulParser.parse_agent(agent)
         ag.bacht_exec_all(agent_parsed) 
     } catch {
-        case error: Throwable => {
-          println(s"BachTSimul error : $error")
+        case ex: ParsingException => {
+          println(s"Bach Parsing Exception : $ex")
           false
         }
     }

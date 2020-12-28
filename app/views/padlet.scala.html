@@ -1,0 +1,19 @@
+@(username: String)(implicit request: RequestHeader, flash: Flash)
+@main("Bachlet"){
+    <input type="hidden" id="ws-route" value="@routes.WebSocketController.socket.webSocketURL()">
+    <div class="d-flex justify-content-between p-2">
+        <h3 id="user">Bonjour, @username</h3>    
+        <a href="@routes.AuthController.logout()" class="btn btn-warning m-2">Logout</a>
+    </div>
+    <div class="form-inline">
+        <input type="text" id="chat-input" class="form-control ml-2">
+        <button id="add-text" class="btn btn-primary ml-2">Add Text Element</button>
+        <button id="add-image" class="btn btn-primary ml-2">Add Image Element</button>
+        <button id="add-video" class="btn btn-primary ml-2">Add Video Element</button>
+    </div>
+
+    <div id="root"></div>
+
+
+    <script src="@routes.Assets.versioned("javascripts/dist/websocket.js")"></script>
+}

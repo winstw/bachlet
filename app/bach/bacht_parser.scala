@@ -61,17 +61,18 @@ class BachletParsers extends BachTParsers{
         case _ ~ vtoken ~ "," ~ vuser ~ _  => bacht_ast_primitive_perm("gets",vtoken,vuser) }
 
 }
+class ParsingException(message: String) extends RuntimeException(message)
 
 object BachTSimulParser extends BachletParsers {
 
   def parse_primitive(prim: String) = parseAll(primitive,prim) match {
         case Success(result, _) => result
-        case failure : NoSuccess => scala.sys.error(failure.msg) // println("Primitive Parsing error", prim)
+        case failure : NoSuccess => throw new ParsingException(failure.msg) // println("Primitive Parsing error", prim)
   }
 
   def parse_agent(ag: String) = parseAll(agent,ag) match {
         case Success(result, _) => result
-        case failure : NoSuccess => scala.sys.error(failure.msg)//println("Agent Parsing error", ag)//
+        case failure : NoSuccess => throw new ParsingException(failure.msg)//println("Agent Parsing error", ag)//
   }
 
 }

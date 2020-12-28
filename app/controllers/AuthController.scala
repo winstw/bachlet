@@ -19,21 +19,23 @@ class AuthController @Inject()(val controllerComponents: ControllerComponents) e
    * a path of `/`.
    */
   def login() = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.login()).withNewSession
+        val usernameOption = request.session.get("username")
+        usernameOption.map{ username => 
+            Redirect(routes.WebSocketController.index())
+        }.getOrElse(Ok(views.html.login()))
   }
 
   def validateLogin() = Action { implicit request => 
         val maybePostVals = request.body.asFormUrlEncoded
         maybePostVals.map {postVals => 
-        val username = postVals("username").head
-        val password = postVals("password").head
-        if (TaskListInMemoryModel.validateUser(username, password)){
-                Redirect(routes.WebSocketController.index()).withSession("username" -> username)
-            } else {
-                Redirect(routes.AuthController.login()).flashing("error" -> "Invalid username/password")
-                }
+          val username = postVals("username").head
+          val password = postVals("password").head
+          if (TaskListInMemoryModel.validateUser(username, password)){
+                  Redirect(routes.WebSocketController.index()).withSession("username" -> username)
+              } else {
+                  Redirect(routes.AuthController.login()).flashing("error" -> "Invalid username/password")
+                  }
         }
-        
         .getOrElse(Redirect(routes.AuthController.login()))
 
     }

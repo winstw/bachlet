@@ -14,6 +14,7 @@ import rx.lang.scala.subjects.PublishSubject
 
 class BachTStore {
    var theStore = Map[String,Int]()
+   
    def tell(token:String):Boolean = {
       if (theStore.contains(token)) 
         { theStore(token) = theStore(token) + 1 }
@@ -55,8 +56,6 @@ class BachTStore {
 
    override def toString = 
       (for ((t,d) <- theStore) yield t + "(" + theStore(t) + ")" ).mkString("{", " ", "}")
-   
-
 
 
    def print_store: Unit = {
@@ -71,26 +70,23 @@ class BachTStore {
    }
 
    var thePerms = Map[String, String]()
+
    def tells(token: String, user: String): Boolean = {
       println("in tells " + user);
       thePerms = thePerms ++ Map(token -> user)
       this.tell(token);
    }
    def gets(token: String, user: String): Boolean = {
-      println("in gets " + user);
+      println("in gets " + user + token);
       thePerms.get(token) match {
          case Some(tokenOwner) => 
          if (user == tokenOwner || (user.startsWith("prof") && !tokenOwner.startsWith("prof"))){
             thePerms.remove(token)
-            return this.get(token)
-         } else return false
-         case None => 
-            return false
+            this.get(token)
+         } else false
+         case None => false
       }
-
    }
-
-
 }
 
 object bb extends BachTStore {
@@ -98,11 +94,10 @@ object bb extends BachTStore {
    val subject = PublishSubject[String]()
 
 
-   def toJson = 
-         (for ((token,d) <- theStore) yield 
-         
-
-         thePerms.get(token) match {
+   def toJson = {
+      println(theStore.zipWithIndex)
+      (for ((token,d) <- theStore) yield 
+            thePerms.get(token) match {
             case Some(user: String) => 
             val Array(typ: String, value: String) = token.dropRight(1).split('(');
             s"""{"type": "$typ", "value": "$value", "user": "$user"}"""
@@ -110,8 +105,7 @@ object bb extends BachTStore {
             val Array(typ: String, value: String) = token.dropRight(1).split('(');
             s"""{"type": "$typ", "value": "$value"}"""
          }).mkString("[", ",", "]")
-         
-         
+      }
 
    override def tell(token: String): Boolean = {
       val result = super.tell(token)
@@ -126,7 +120,6 @@ object bb extends BachTStore {
       success
    }
 
-   
    def reset: Unit = { clear_store }
 
 }
