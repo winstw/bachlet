@@ -8,6 +8,7 @@ package bach
    AUTHOR : J.-M. Jacquet and D. Darquennes
    DATE   : March 2016
 
+   Modifications apportés pour le projet bachlet commentées dans le code
 ----------------------------------------------------------------------------*/
 
 import scala.util.Random

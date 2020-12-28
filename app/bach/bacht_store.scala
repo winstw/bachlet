@@ -10,7 +10,7 @@ import rx.lang.scala.subjects.PublishSubject
    AUTHOR : J.-M. Jacquet and D. Darquennes
    DATE   : March 2016
 
-   // Modifications apportés commentées dans le code
+   Modifications apportés pour le projet bachlet commentées dans le code
 ----------------------------------------------------------------------------*/
 
 class BachTStore {

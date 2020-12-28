@@ -24,7 +24,7 @@ class WebSocketController @Inject()(cc: ControllerComponents)(implicit system: A
 
     // Route de la connection au Socket proprement dite
     // Chaque nouvelle connection va générer un acteur (Akka)
-    // chargé de gérer la communication
+    // de type BachletActor chargé de gérer la communication
     def socket = WebSocket.accept[String, String] { request => 
         println("Getting socket")
         ActorFlow.actorRef  { out => 

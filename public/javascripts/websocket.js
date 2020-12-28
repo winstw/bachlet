@@ -16,8 +16,8 @@ class BachItem extends React.Component {
     render() {
         const {type, value, user} = this.props.value;
 
-        const userElement =  <i className="m-2">{user}</i>
-        const deleteButtonElement = <button type="button" className="close mr-2" onClick={this.props.delete}>&times;</button>
+        const userElement =  <i>{user}</i>
+        const deleteButtonElement = <button type="button" className="close" onClick={this.props.delete}>&times;</button>
         let valueElement;
 
         if(type =="textItem") 
@@ -25,17 +25,17 @@ class BachItem extends React.Component {
                                                className="card-text m-3">{value}</p>
        
         else if(type == "imageItem") 
-            valueElement = <img src={value} className="card-image m-2" width="200px" height="200px"></img>
+            valueElement = <img src={value} className="card-img"></img>
         
-        else valueElement = <iframe src={value}
-                                    width="200px"
-                                    height="200px"></iframe>
+        else valueElement = <iframe src={value} className="card-img"></iframe>
 
-        return  <div style={{width: "250px", background: "#FF9900"}} className="card m-3">
-                    <div style={{display: "flex", justifyContent: "space-between"}} className="w-100"> 
+        return  <div style={{width: "300px", textAlign: "center"}} className="card m-3">
+                    <div className="card-header p-2 d-flex justify-content-between"> 
                         {userElement} {deleteButtonElement}
                     </div>
-                    {valueElement}
+                    <div className="card-body">
+                        {valueElement}
+                    </div>
                 </div> 
 
     }
@@ -116,25 +116,26 @@ class BachWidget extends React.Component {
     render() {
         return <div>
             <div className="d-flex justify-content-between pt-3">
-                <div className="col-2">
-                    <div className="btn-group-vertical">
+                <div className="">
+                    <div className="btn-group">
                         {this.sortMethods.map(method => 
                             <button onClick={() => this.setSortMethod(method)} key={method} className={`btn btn-outline-secondary${this.state.sortMethod == method ? ' active': ''}`}>Sort by {method}</button>
                         )}
                     </div>
                 </div>
-                <div  ref={this.itemContainerRef} className="d-flex justify-content-start flex-row align-items-left flex-wrap">
+                <div className="d-flex">
+                    {this.state.users.map(({value:user}) => 
+                        <i key={user} className={`btn btn-${user == currentUser ? 'info' : 'secondary'} ml-1 mr-1`}>{user}</i>
+                    )}
+                </div>
+            </div>
+            <div style={{width: "80%", margin: "auto"}}>
+                <div  ref={this.itemContainerRef} className="card-columns">
                     {this.state.items.sort(this.getComparisonFunctionFor(this.state.sortMethod)).map((item, id) => 
                     <BachItem id={id} key={item.value} value={item} delete={this.onDeleteItem(item)}>
                     </BachItem>
                     )}
-            </div>
-            <div className="d-flex flex-column">
-                {this.state.users.map(({value:user}) => 
-                <i key={user} className={`btn btn-${user == currentUser ? 'info' : 'secondary'} m-2`}>{user}</i>
-                )}
-            </div>
-
+                </div>
             </div>
         </div>
 
