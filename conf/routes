@@ -12,6 +12,5 @@ GET /login                 controllers.AuthController.login()
 POST /login                 controllers.AuthController.validateLogin()
 GET /logout                controllers.AuthController.logout()
 
-# for WebSocket Chat
-GET /chat   controllers.WebSocketController.index()
-GET /chatSocket controllers.WebSocketController.socket
+GET /padlet   controllers.WebSocketController.index()
+GET /padletSocket controllers.WebSocketController.socket
